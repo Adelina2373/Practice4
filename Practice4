@@ -1,0 +1,205 @@
+#include <fstream>
+#include <iostream>
+#include <string>
+using namespace std;
+
+string stroka;
+
+void probel(string txt) {
+    for (int i = 0; i < txt.size(); i++) {
+        if ((txt[i] == ' ') and (txt[i + 1] == ' '))
+            while (txt[i + 1] == ' ')
+                txt.erase(i + 1, 1);
+    }
+    stroka = txt;
+}
+
+void znaky(string txt) {
+    for (int i = 0; i < txt.size(); i++) {
+        if ((txt[i] == '.' or txt[i] == ',' or txt[i] == ';' or txt[i] == ':' or txt[i] == '?' or txt[i] == '!') and (txt[i + 1] == '.' or txt[i + 1] == ',' or txt[i + 1] == ';' or txt[i + 1] == ':' or txt[i + 1] == '?' or txt[i + 1] == '!'))
+            if (txt[i] == '.' and txt[i + 1] == '.' and txt[i + 2] == '.')
+                i += 3;
+            else {
+                while (txt[i + 1] == '.' or txt[i + 1] == ',' or txt[i + 1] == ';' or txt[i + 1] == ':' or txt[i + 1] == ' ? ' or txt[i + 1] == '!')
+                    txt.erase(i + 1, 1);
+
+            }
+    }
+    stroka = txt;
+}
+
+void razmernost(string txt) {
+    for (int i = 0; i < txt.size(); i++) {
+        if (txt[i] == ' ')
+            i += 2;
+        txt[i] = tolower(txt[i]);
+    }
+    stroka = txt;
+}
+
+void pervayabukva(string txt) {
+    txt[0] = toupper(txt[0]);
+    for (int i = 0; i < txt.size(); i++) {
+        if (txt[i] == ' ')
+            txt[i + 1] = toupper(txt[i + 1]);
+    }
+    stroka = txt;
+}
+
+void poisk(string txt, string podstr) {
+    bool prove;
+    int count = 0;
+
+
+    for (int i = 0; i < txt.size(); i++) {
+        if (txt[i] == podstr[0]) {
+            prove = true;
+            for (int j = 1; j < podstr.size(); j++) {
+                if (txt[i + j] != podstr[j]) {
+                    prove = false;
+                }
+            }
+            if (prove == true) {
+                count++;
+                cout << "Расположение: " << i;
+            }
+        }
+    }
+    if (count == 0) {
+        cout << "Результат отсутствует";
+    }
+    else {
+        cout << "по запросу " << count << " подходит";
+    }
+}
+
+
+void notFitLetter(string str, int size, int badletter[256])
+{
+    int i;
+    for (i = 0; i < 256; i++)
+        badletter[i] = -1;
+
+
+    for (i = 0; i < size; i++)
+        badletter[(int)str[i]] = i;
+}
+
+void search(string txt, string podstr)
+{
+    int m = podstr.size();
+    int n = txt.size();
+
+    int badchar[256];
+
+    notFitLetter(podstr, m, badchar);
+
+    int s = 0;
+
+    while (s <= (n - m))
+    {
+        int j = m - 1;
+
+        while (j >= 0 && podstr[j] == txt[s + j])
+            j--;
+        if (j < 0)
+        {
+            cout << "начало подстроки находитья под индексом: " << s << endl;
+            s += (s + m < n) ? m - badchar[txt[s + m]] : 1;
+
+        }
+
+        else
+            s += max(1, j - badchar[txt[s + j]]);
+    }
+}
+
+int main() {
+    setlocale(0, "");
+
+    int snachala;
+    while (true) {
+        //#1 
+
+        int vvod;
+    Menu: {
+        cout << "Выберете способ записи строки:\n"
+            "1. записать с клавиатуры\n"
+            "2. считать с файла\n";
+        cin >> vvod;
+        }
+    if (vvod == 1) {
+        cin.ignore();
+        getline(cin, stroka);
+    }
+    else if (vvod == 2) {
+        ifstream in("C:\\Users\\User\\Desktop\\practice4.1\\practice4.txt");
+        if (in.is_open())
+            getline(in, stroka);
+        in.close();
+
+
+    }
+    cout << "1. Исходная строка:" << stroka << "\n";
+
+
+
+
+    //#2
+
+    probel(stroka);
+    znaky(stroka);
+    razmernost(stroka);
+    cout << "\n" << stroka << "\n";
+
+    //#3
+
+    cout << "2. Вывод строки в обратном порядке:";
+    int a = 0;
+    stroka += " ";
+
+    for (int i = stroka.length(); i >= 0; i--) {
+        if (stroka[i] == ' ') {
+            for (int k = i + 1; k <= (i + a); k++) {
+                cout << stroka[k];
+            }
+            a = 0;
+        }
+        a++;
+    }
+    for (int i = 0; i < stroka.length(); i++) {
+        if (stroka[i] == ' ') break;
+        cout << stroka[i];
+    }
+
+    //#4
+
+    pervayabukva(stroka);
+
+    cout << "\n4. Все слова с заглавной буквы: " << stroka << "\n";
+
+    //#5
+
+    string podstr;
+    int vybr;
+    cout << "5. Введите подстроку: ";
+    cin >> podstr;
+    cout << "Выберете тип поиска:\n"
+        "1. Линейный поиск\n"
+        "2. Алгоритм Бойера-Мура\n";
+    cin >> vybr;
+    if (vybr == 1) {
+        poisk(stroka, podstr);
+    }
+    if (vybr == 2) {
+        search(stroka, podstr);
+    }
+
+    cout << "\n\nХотите продолжить? Если Да, введите: '0'" << endl;
+    cin >> snachala;
+    if (snachala != 0)
+        break;
+
+    }
+}
+
